@@ -3,7 +3,6 @@ dart:
   - stable
 os:
   - linux
-sudo: false
 addons:
   apt:
     sources:
