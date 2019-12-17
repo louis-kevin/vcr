@@ -12,18 +12,27 @@ void main() {
   VcrAdapter adapter;
   Dio client;
 
+  File getFile() {
+    String finalPath = 'test/cassetes/github/user_repos.json';
+    if (Platform.environment.containsKey('TRAVIS_BUILD_DIR')) {
+      String travisBuildDir = Platform.environment["TRAVIS_BUILD_DIR"];
+      finalPath = "$travisBuildDir/$finalPath";
+    }
+    return File(finalPath);
+  }
+
   List _readFile(File file) {
     String jsonString = file.readAsStringSync();
     return json.decode(jsonString);
   }
 
-  checkRequestSizeInFile(File file, int size){
+  checkRequestSizeInFile(File file, int size) {
     List requests = _readFile(file);
 
     expect(requests.length, size);
   }
 
-  setUp((){
+  setUp(() {
     adapter = VcrAdapter();
     client = Dio();
     client.httpClientAdapter = adapter;
@@ -31,16 +40,17 @@ void main() {
 
   tearDown(() {
     var directory = Directory('test/cassetes');
-    if(directory.existsSync()) directory.delete(recursive: true);
+    if (directory.existsSync()) directory.delete(recursive: true);
   });
 
   test('make request when there is no cassette', () async {
-    File file = File('test/cassetes/github/user_repos.json');
+    File file = getFile();
     expect(file.existsSync(), isFalse);
 
     await adapter.useCassette('github/user_repos');
 
-    Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
+    Response response =
+        await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
 
     expect(file.existsSync(), isTrue);
@@ -48,27 +58,31 @@ void main() {
     checkRequestSizeInFile(file, 1);
   });
 
-  test('must not store a new request in same file when it already exists', () async {
-    File file = File('test/cassetes/github/user_repos.json');
+  test('must not store a new request in same file when it already exists',
+      () async {
+    File file = getFile();
     expect(file.existsSync(), isFalse);
     await adapter.useCassette('github/user_repos');
 
-    Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
+    Response response =
+        await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
     expect(file.existsSync(), isTrue);
     checkRequestSizeInFile(file, 1);
 
-    response = await client.get('https://api.github.com/users/keviinlouis/repos');
+    response =
+        await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
     checkRequestSizeInFile(file, 1);
   });
 
   test('must store a new request in same file when does not found', () async {
-    File file = File('test/cassetes/github/user_repos.json');
+    File file = getFile();
     expect(file.existsSync(), isFalse);
     await adapter.useCassette('github/user_repos');
 
-    Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
+    Response response =
+        await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
     expect(file.existsSync(), isTrue);
     checkRequestSizeInFile(file, 1);
@@ -78,5 +92,3 @@ void main() {
     checkRequestSizeInFile(file, 2);
   });
 }
-
-

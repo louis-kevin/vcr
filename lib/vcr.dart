@@ -30,7 +30,7 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
 
     if(Platform.environment.containsKey('TRAVIS_BUILD_DIR')){
       String travisBuildDir = Platform.environment["TRAVIS_BUILD_DIR"];
-      finalPath ="$travisBuildDir/$finalPath";
+      finalPath = "$travisBuildDir/$finalPath";
     }
     print(finalPath);
     return new File(finalPath);
