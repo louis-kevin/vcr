@@ -11,7 +11,7 @@ const dioHttpHeadersForResponseBody = {
   Headers.contentTypeHeader: [Headers.jsonContentType],
 };
 
-class DioAdapterMock extends Mock implements HttpClientAdapter {
+class VcrAdapter extends Mock implements HttpClientAdapter {
   String basePath = 'test/cassetes';
 
   useCassette(path) {
