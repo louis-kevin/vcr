@@ -13,12 +13,11 @@ void main() {
   Dio client;
 
   File getFile() {
-    String finalPath = 'test/cassetes/github/user_repos.json';
-    if (Platform.environment.containsKey('TRAVIS_BUILD_DIR')) {
-      String travisBuildDir = Platform.environment["TRAVIS_BUILD_DIR"];
-      finalPath = "$travisBuildDir/$finalPath";
-    }
-    print(finalPath);
+    String path = 'github/user_repos.json';
+    Directory current = Directory.current;
+    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+
+    finalPath = "$finalPath/cassettes/$path";
     return File(finalPath);
   }
 
