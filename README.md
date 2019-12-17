@@ -8,7 +8,7 @@ A package to mock requests
 To start using, just create a adapter and put inside your client<br>
 This is a example with Dio client:
 ```dart
-VcrAdapter adapter adapter = VcrAdapter();
+VcrAdapter adapter = VcrAdapter();
 Dio client = Dio();
 client.httpClientAdapter = adapter;
 ```
