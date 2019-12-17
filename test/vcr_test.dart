@@ -18,6 +18,7 @@ void main() {
       String travisBuildDir = Platform.environment["TRAVIS_BUILD_DIR"];
       finalPath = "$travisBuildDir/$finalPath";
     }
+    print(finalPath);
     return File(finalPath);
   }
 

@@ -5,7 +5,7 @@ addons:
     packages:
       - lib32stdc++6
 install:
-  - "[[ -d flutter ]] || git clone https://github.com/flutter/flutter.git -b stable"
+  - '[ "$(ls -A ./flutter)" ] || git clone https://github.com/flutter/flutter.git -b stable'
   - ./flutter/bin/flutter doctor
 script:
   - ./flutter/bin/flutter test
