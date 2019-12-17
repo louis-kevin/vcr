@@ -21,7 +21,7 @@ void main() {
   });
 
   test('test call', () async {
-    adapter.useCassette('github/user_repos');
+    await adapter.useCassette('github/user_repos');
     Response response = await apiCall.call();
     expect(response.statusCode, 200);
   });

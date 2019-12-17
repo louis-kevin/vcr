@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vcr/vcr.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
   VcrAdapter adapter;
   Dio client;
 
@@ -35,7 +38,7 @@ void main() {
     File file = File('test/cassetes/github/user_repos.json');
     expect(file.existsSync(), isFalse);
 
-    adapter.useCassette('github/user_repos');
+    await adapter.useCassette('github/user_repos');
 
     Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
@@ -48,7 +51,7 @@ void main() {
   test('must not store a new request in same file when it already exists', () async {
     File file = File('test/cassetes/github/user_repos.json');
     expect(file.existsSync(), isFalse);
-    adapter.useCassette('github/user_repos');
+    await adapter.useCassette('github/user_repos');
 
     Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
@@ -63,7 +66,7 @@ void main() {
   test('must store a new request in same file when does not found', () async {
     File file = File('test/cassetes/github/user_repos.json');
     expect(file.existsSync(), isFalse);
-    adapter.useCassette('github/user_repos');
+    await adapter.useCassette('github/user_repos');
 
     Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
     expect(response.statusCode, 200);
