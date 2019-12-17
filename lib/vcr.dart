@@ -12,7 +12,7 @@ const dioHttpHeadersForResponseBody = {
 };
 
 class VcrAdapter extends Mock implements HttpClientAdapter {
-  String basePath = 'test/cassetes';
+  String basePath = 'test/cassettes';
 
   useCassette(path) {
     File file = _loadFile(path);
