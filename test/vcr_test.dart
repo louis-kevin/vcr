@@ -3,14 +3,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/testing.dart';
 import 'package:vcr/vcr.dart';
-import 'package:http/http.dart' as http;
 
 void main() {
   VcrAdapter adapter;
   Dio client;
-  http.Client clientHttp;
 
   List _readFile(File file) {
     String jsonString = file.readAsStringSync();

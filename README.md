@@ -1,6 +1,6 @@
 # vcr
 
-A package to mock requests
+A package to mock requests using Dio Client
 
 [![Build Status](https://travis-ci.com/keviinlouis/vcr.svg?token=AnXqdLS5A2ztMfzjxSdg&branch=master)](https://travis-ci.com/keviinlouis/vcr)
 ## Getting Started
