@@ -141,7 +141,8 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
         Uri uri2 = Uri.parse(request["request"]["url"]);
         return uri2.host == host && uri2.path == path;
       },
-      orElse: () => orElse != null ? orElse() : throw Exception('Cassette not found'),
+      orElse: () =>
+          orElse != null ? orElse() : throw Exception('Cassette not found'),
     );
   }
 }
