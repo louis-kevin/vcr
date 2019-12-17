@@ -17,7 +17,7 @@ before_script:
   - git clone https://github.com/flutter/flutter.git -b stable --depth 1
   - ./flutter/bin/flutter doctor
 script:
-  - flutter pub get
+  - ./flutter/bin/flutter pub get
   - ./flutter/bin/flutter test
 after_success:
 cache:
