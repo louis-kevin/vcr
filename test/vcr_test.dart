@@ -39,7 +39,9 @@ void main() {
   });
 
   tearDown(() {
-    var directory = Directory('test/cassetes');
+    Directory current = Directory.current;
+    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+    var directory = Directory('$finalPath/cassetes');
     if (directory.existsSync()) directory.delete(recursive: true);
   });
 
