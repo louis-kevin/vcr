@@ -12,10 +12,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 
 void main() {
-  DioAdapterMock adapter;
+  VcrAdapter adapter;
   ApiCall apiCall;
   setUp((){
-    adapter = DioAdapterMock();
+    adapter = VcrAdapter();
     apiCall = ApiCall();
     apiCall.client.httpClientAdapter = adapter;
   });
