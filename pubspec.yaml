@@ -9,6 +9,6 @@ environment:
 
 dependencies:
   mockito: ^4.1.1
-  dio: ^3.0.7
+  dio: ^3.0.4
 
 dev_dependencies:
