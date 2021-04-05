@@ -12,16 +12,16 @@ import 'package:flutter_test/flutter_test.dart';
 
 
 void main() {
-  VcrAdapter adapter;
-  ApiCall apiCall;
+  VcrAdapter? adapter;
+  late ApiCall apiCall;
   setUp((){
     adapter = VcrAdapter();
     apiCall = ApiCall();
-    apiCall.client.httpClientAdapter = adapter;
+    apiCall.client.httpClientAdapter = adapter!;
   });
 
   test('test call', () async {
-    await adapter.useCassette('github/user_repos');
+    await adapter!.useCassette('github/user_repos');
     Response response = await apiCall.call();
     expect(response.statusCode, 200);
   });

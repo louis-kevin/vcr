@@ -9,8 +9,8 @@ import 'package:vcr/vcr.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  VcrAdapter adapter;
-  Dio client;
+  VcrAdapter? adapter;
+  late Dio client;
 
   File getFile() {
     String path = 'github/user_repos.json';
@@ -21,13 +21,13 @@ void main() {
     return File(finalPath);
   }
 
-  List _readFile(File file) {
+  List? _readFile(File file) {
     String jsonString = file.readAsStringSync();
     return json.decode(jsonString);
   }
 
   checkRequestSizeInFile(File file, int size) {
-    List requests = _readFile(file);
+    List requests = _readFile(file)!;
 
     expect(requests.length, size);
   }
@@ -35,7 +35,7 @@ void main() {
   setUp(() {
     adapter = VcrAdapter();
     client = Dio();
-    client.httpClientAdapter = adapter;
+    client.httpClientAdapter = adapter!;
   });
 
   tearDown(() {
@@ -49,7 +49,7 @@ void main() {
     File file = getFile();
     expect(file.existsSync(), isFalse);
 
-    await adapter.useCassette('github/user_repos');
+    await adapter!.useCassette('github/user_repos');
 
     Response response =
         await client.get('https://api.github.com/users/keviinlouis/repos');
@@ -64,7 +64,7 @@ void main() {
       () async {
     File file = getFile();
     expect(file.existsSync(), isFalse);
-    await adapter.useCassette('github/user_repos');
+    await adapter!.useCassette('github/user_repos');
 
     Response response =
         await client.get('https://api.github.com/users/keviinlouis/repos');
@@ -81,7 +81,7 @@ void main() {
   test('must store a new request in same file when does not found', () async {
     File file = getFile();
     expect(file.existsSync(), isFalse);
-    await adapter.useCassette('github/user_repos');
+    await adapter!.useCassette('github/user_repos');
 
     Response response =
         await client.get('https://api.github.com/users/keviinlouis/repos');

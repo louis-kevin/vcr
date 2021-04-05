@@ -1,25 +1,36 @@
 library vcr;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:mockito/mockito.dart';
 
 const dioHttpHeadersForResponseBody = {
   Headers.contentTypeHeader: [Headers.jsonContentType],
 };
 
-class VcrAdapter extends Mock implements HttpClientAdapter {
+class VcrAdapter implements HttpClientAdapter {
   String basePath = 'test/cassettes';
+  File? file;
+
+  void close({bool force = false}) {}
+
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) {
+    if (file!.existsSync())
+      return makeMockRequest(file!, options, requestStream, cancelFuture);
+
+    return makeNormalRequest(file!, options, requestStream, cancelFuture);
+  }
 
   useCassette(path) {
-    File file = _loadFile(path);
-
-    if (!file.existsSync()) return makeNormalRequestWithAdapter(file);
-
-    return makeMockRequestWithAdapter(file);
+    file = _loadFile(path);
   }
 
   File _loadFile(String path) {
@@ -27,42 +38,26 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
       path = "$path.json";
     }
     Directory current = Directory.current;
-    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+    String finalPath =
+        current.path.endsWith('/test') ? current.path : current.path + '/test';
 
     finalPath = "$finalPath/cassettes/$path";
 
     return new File(finalPath);
   }
 
-  makeMockRequestWithAdapter(File file) {
-    when(fetch(any, any, any)).thenAnswer((invocation) async {
-      List arguments = invocation.positionalArguments;
-      return makeMockRequest(file, arguments[0], arguments[1], arguments[2]);
-    });
-  }
-
-  makeNormalRequestWithAdapter(File file) {
-    when(fetch(any, any, any)).thenAnswer((invocation) async {
-      List arguments = invocation.positionalArguments;
-      if (file.existsSync())
-        return makeMockRequest(file, arguments[0], arguments[1], arguments[2]);
-
-      return makeNormalRequest(file, arguments[0], arguments[1], arguments[2]);
-    });
-  }
-
   Future<ResponseBody> makeNormalRequest(
     File file,
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<List<int>>? requestStream,
+    Future? cancelFuture,
   ) async {
     final adapter = DefaultHttpClientAdapter();
 
     ResponseBody responseBody =
-        await adapter.fetch(options, requestStream, cancelFuture);
+        await adapter.fetch(options, requestStream as dynamic, cancelFuture);
 
-    int status = responseBody.statusCode;
+    int? status = responseBody.statusCode;
 
     DefaultTransformer transformer = DefaultTransformer();
 
@@ -80,15 +75,15 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
   Future<ResponseBody> makeMockRequest(
     File file,
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<List<int>>? requestStream,
+    Future? cancelFuture,
   ) async {
-    Map data = await _matchRequest(options.uri, file, orElse: () async {
+    var data = await (_matchRequest(options.uri, file, orElse: () async {
       await makeNormalRequest(file, options, requestStream, cancelFuture);
       return _matchRequest(options.uri, file);
-    });
+    }));
 
-    Map response = data['response'];
+    Map response = data!['response'];
 
     final responsePayload = json.encode(response['body']);
 
@@ -106,7 +101,7 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
     if (!file.existsSync()) {
       file.createSync(recursive: true);
     } else {
-      List requests = _readFile(file);
+      List requests = _readFile(file)!;
       requests.addAll(mock);
       mock = requests;
     }
@@ -114,7 +109,7 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
     file.writeAsStringSync(json.encode(mock));
   }
 
-  List _readFile(File file) {
+  List? _readFile(File file) {
     String jsonString = file.readAsStringSync();
     return json.decode(jsonString);
   }
@@ -125,21 +120,21 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
       'request': {
         'url': requestOptions.uri.toString(),
         'payload': requestOptions.data,
-        'headers': requestOptions.headers ?? {}
+        'headers': requestOptions.headers
       },
       'response': {
         'status': responseBody.statusCode,
         'body': data,
-        'headers': responseBody.headers ?? {}
+        'headers': responseBody.headers
       },
       'createdAt': DateTime.now().toString()
     };
   }
 
-  Future<Map> _matchRequest(Uri uri, File file, {orElse}) async {
+  Future<Map?> _matchRequest(Uri uri, File file, {orElse}) async {
     String host = uri.host;
     String path = uri.path;
-    List requests = _readFile(file);
+    List requests = _readFile(file)!;
     return requests.firstWhere(
       (request) {
         Uri uri2 = Uri.parse(request["request"]["url"]);
