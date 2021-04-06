@@ -20,7 +20,7 @@ class VcrAdapter implements HttpClientAdapter {
 
   Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<Uint8List>? requestStream,
+    Stream<List<int>>? requestStream,
     Future? cancelFuture,
   ) {
     if (file!.existsSync())
