@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:vcr/vcr.dart';
+import 'package:vcr2/vcr.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,7 +15,8 @@ void main() {
   File getFile() {
     String path = 'github/user_repos.json';
     Directory current = Directory.current;
-    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+    String finalPath =
+        current.path.endsWith('/test') ? current.path : current.path + '/test';
 
     finalPath = "$finalPath/cassettes/$path";
     return File(finalPath);
@@ -40,7 +41,8 @@ void main() {
 
   tearDown(() {
     Directory current = Directory.current;
-    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+    String finalPath =
+        current.path.endsWith('/test') ? current.path : current.path + '/test';
     var directory = Directory('$finalPath/cassettes');
     if (directory.existsSync()) directory.delete(recursive: true);
   });

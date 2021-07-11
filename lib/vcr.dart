@@ -1,4 +1,4 @@
-library vcr;
+library vcr2;
 
 import 'dart:async';
 import 'dart:convert';

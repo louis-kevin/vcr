@@ -1,8 +1,8 @@
-# vcr
+# vcr2
 
-A package to mock requests using Dio Client
+A package to mock requests using Dio Client, supports nullsafety.
+Forked from the original vcr & maintained, it's a drop-in replacement.
 
-[![Build Status](https://travis-ci.com/keviinlouis/vcr.svg?token=AnXqdLS5A2ztMfzjxSdg&branch=master)](https://travis-ci.com/keviinlouis/vcr)
 ## Getting Started
 
 To start using, just create a adapter and put inside your client<br>
