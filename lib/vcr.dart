@@ -13,7 +13,7 @@ const dioHttpHeadersForResponseBody = {
 };
 
 class VcrAdapter extends DefaultHttpClientAdapter {
-  String basePath;
+  late String basePath;
   bool createIfNotExists;
   File? _file;
 
@@ -25,27 +25,30 @@ class VcrAdapter extends DefaultHttpClientAdapter {
     return _file!;
   }
 
-  VcrAdapter({this.basePath = 'test/cassettes', this.createIfNotExists = true});
+  VcrAdapter({String basePath = 'test/cassettes', this.createIfNotExists = true}){
+    final current = p.current;
+    this.basePath = p.joinAll([current, ...basePath.replaceAll("\\", "/").split('/')]);
+  }
 
   useCassette(path) {
     _file = loadFile(path);
   }
 
   File loadFile(String path) {
+    final filePath = loadPath(path);
+    return File(filePath);
+  }
+
+  String loadPath(String path){
     if (!path.endsWith('.json')) {
       path = "$path.json";
     }
 
-    var paths = path.replaceAll("\"", "/").split('/');
-
-    Directory current = Directory.current;
-    String basePath = p.joinAll(
-        [current.path, ...this.basePath.replaceAll("\"", "/").split('/')]);
+    var paths = path.replaceAll("\\", "/").split('/');
 
     String cassettePath = p.joinAll(paths);
-    String filePath = p.join(basePath, cassettePath);
 
-    return File(filePath);
+    return p.join(basePath, cassettePath);
   }
 
   Future<ResponseBody> fetch(
@@ -53,7 +56,9 @@ class VcrAdapter extends DefaultHttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    if (_file == null && createIfNotExists) useCassette(p.current);
+    if (_file == null && createIfNotExists){
+      useCassette(options.uri.path);
+    }
 
     var data = await _matchRequest(options.uri);
 
