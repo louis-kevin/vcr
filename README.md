@@ -2,7 +2,7 @@
 
 A package to mock requests using Dio Client
 
-[![Build Status](https://travis-ci.com/keviinlouis/vcr.svg?token=AnXqdLS5A2ztMfzjxSdg&branch=master)](https://travis-ci.com/keviinlouis/vcr)
+![tests](https://github.com/louis-kevin/vcr/actions/workflows/tests.yaml/badge.svg)
 <a href="https://codeclimate.com/github/keviinlouis/vcr/maintainability"><img src="https://api.codeclimate.com/v1/badges/2b4874898ddb47ca3c76/maintainability" /></a>
 ## Getting Started
 
