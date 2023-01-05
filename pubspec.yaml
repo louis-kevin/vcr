@@ -9,7 +9,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^4.0.0
+  dio: ^4.0.6
+  path: ^1.8.2
 
 dev_dependencies:
   flutter_test:
