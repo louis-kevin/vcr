@@ -12,20 +12,19 @@ class VcrTestAdapter extends VcrAdapter {
   VcrTestAdapter({String basePath = 'test/cassettes', createIfNotExists = true})
       : super(basePath: basePath, createIfNotExists: createIfNotExists);
 
-  fakeFetch(RequestOptions options,
-      Stream<Uint8List>? _,
-      Future? __,) {
+  fakeFetch(RequestOptions options) {
     return ResponseBody.fromString(
       json.encode({"path": options.uri.path}),
       200,
     );
   }
 
-  Future<Map?> makeNormalRequest(RequestOptions options,
-      Stream<Uint8List>? requestStream,
-      Future? cancelFuture,) async {
-    ResponseBody responseBody =
-    await fakeFetch(options, requestStream, cancelFuture);
+  Future<Map?> makeNormalRequest(
+    RequestOptions options,
+    Stream<Uint8List>? _,
+    Future? __,
+  ) async {
+    ResponseBody responseBody = await fakeFetch(options);
 
     var cassette = Cassette(file, responseBody, options);
 
@@ -81,20 +80,20 @@ void main() {
   });
 
   test('must not store a new request in same file when it already exists',
-          () async {
-        File file = adapter.loadFile(cassetteName);
-        expect(file.existsSync(), isFalse);
-        await adapter.useCassette(cassetteName);
+      () async {
+    File file = adapter.loadFile(cassetteName);
+    expect(file.existsSync(), isFalse);
+    await adapter.useCassette(cassetteName);
 
-        Response response = await client.get(url);
-        expect(response.statusCode, 200);
-        expect(file.existsSync(), isTrue);
-        checkRequestSizeInFile(file, 1);
+    Response response = await client.get(url);
+    expect(response.statusCode, 200);
+    expect(file.existsSync(), isTrue);
+    checkRequestSizeInFile(file, 1);
 
-        response = await client.get(url);
-        expect(response.statusCode, 200);
-        checkRequestSizeInFile(file, 1);
-      });
+    response = await client.get(url);
+    expect(response.statusCode, 200);
+    checkRequestSizeInFile(file, 1);
+  });
 
   test('must store a new request in same file when does not found', () async {
     File file = adapter.loadFile(cassetteName);
