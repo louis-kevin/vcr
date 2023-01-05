@@ -25,9 +25,11 @@ class VcrAdapter extends DefaultHttpClientAdapter {
     return _file!;
   }
 
-  VcrAdapter({String basePath = 'test/cassettes', this.createIfNotExists = true}){
+  VcrAdapter(
+      {String basePath = 'test/cassettes', this.createIfNotExists = true}) {
     final current = p.current;
-    this.basePath = p.joinAll([current, ...basePath.replaceAll("\\", "/").split('/')]);
+    this.basePath =
+        p.joinAll([current, ...basePath.replaceAll("\\", "/").split('/')]);
   }
 
   useCassette(path) {
@@ -39,7 +41,7 @@ class VcrAdapter extends DefaultHttpClientAdapter {
     return File(filePath);
   }
 
-  String loadPath(String path){
+  String loadPath(String path) {
     if (!path.endsWith('.json')) {
       path = "$path.json";
     }
@@ -56,7 +58,7 @@ class VcrAdapter extends DefaultHttpClientAdapter {
     Stream<Uint8List>? requestStream,
     Future? cancelFuture,
   ) async {
-    if (_file == null && createIfNotExists){
+    if (_file == null && createIfNotExists) {
       useCassette(options.uri.path);
     }
 
@@ -66,7 +68,7 @@ class VcrAdapter extends DefaultHttpClientAdapter {
       data = await _makeNormalRequest(options, requestStream, cancelFuture);
     }
 
-    if(data == null){
+    if (data == null) {
       throw Exception('Unable to create cassette');
     }
 
@@ -102,7 +104,7 @@ class VcrAdapter extends DefaultHttpClientAdapter {
   }
 
   Future<Map?> _matchRequest(Uri uri) async {
-    if(!file.existsSync()) return null;
+    if (!file.existsSync()) return null;
 
     String host = uri.host;
     String path = uri.path;
