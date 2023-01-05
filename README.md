@@ -8,28 +8,43 @@ A package to mock requests using Dio Client
 
 To start using, just create a adapter and put inside your client<br>
 This is a example with Dio client:
-```dart
-VcrAdapter adapter = VcrAdapter();
+```
+VcrAdapter adapter = VcrAdapter({basePath:'test/cassettes', createIfNotExists: true });
 Dio client = Dio();
 client.httpClientAdapter = adapter;
 ```
 
 After config the adapter, you now can use a cassette
 
-```dart
-adapter.useCassette('github/user_repos');
-
-Response response = await client.get('https://api.github.com/users/keviinlouis/repos');
+```
+Response response = await client.get('https://api.github.com/users/louis-kevin/repos');
 expect(response.statusCode, 200);
 ```
 
-Now the request is stored in test/cassette/github/user_repos.json
+Now the request is stored in `test/cassette/users/louis-kevin/repos.json`<br>
 
 If you have multiple requests for one test, they will be added in a list of requests
-If de adapter can't find the right request, he will make a normal request and then store the request
+If the adapter can't find the right request, he will make a normal request and then store the request
 
 This package is inspired by VCR gem
 
+#### Options
+
+| basePath | string | Path to store your cassettes, relative to root |
+| createIfNotExists | boolean | If this is disabled, you need to call `useCassette` before call your api|
+
+### Using useCassette
+The only main difference is that you need to call `useCassette` before calling your API
+```
+adapter.useCassette('github/my_casssete')
+Response response = await client.get('https://api.github.com/users/louis-kevin/repos');
+expect(response.statusCode, 200);
+```
+
+You can choose passing `.json` format or not, it will store the cassette in json either way<br>
+Now the request is stored in `test/cassette/github/my_casssete.json`<br>
+
 #### Next Features
 - [ ] Work with Http Package
+- [ ] Work with YAML
 
