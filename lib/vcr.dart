@@ -1,92 +1,69 @@
-library vcr;
-
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:path/path.dart' as p;
 
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
-import 'package:mockito/mockito.dart';
+import 'package:vcr/cassette.dart';
 
 const dioHttpHeadersForResponseBody = {
   Headers.contentTypeHeader: [Headers.jsonContentType],
 };
 
-class VcrAdapter extends Mock implements HttpClientAdapter {
-  String basePath = 'test/cassettes';
+class VcrAdapter extends DefaultHttpClientAdapter {
+  String basePath;
+  bool createIfNotExists;
+  File? _file;
+
+  File get file {
+    if (_file == null)
+      throw Exception(
+          'File not loaded, use `useCassette` or enable creation if not exists with `createIfNotExists` options');
+
+    return _file!;
+  }
+
+  VcrAdapter({this.basePath = 'test/cassettes', this.createIfNotExists = true});
 
   useCassette(path) {
-    File file = _loadFile(path);
-
-    if (!file.existsSync()) return makeNormalRequestWithAdapter(file);
-
-    return makeMockRequestWithAdapter(file);
+    _file = loadFile(path);
   }
 
-  File _loadFile(String path) {
-    if (!path.contains('.json')) {
+  File loadFile(String path) {
+    if (!path.endsWith('.json')) {
       path = "$path.json";
     }
+
+    var paths = path.replaceAll("\"", "/").split('/');
+
     Directory current = Directory.current;
-    String finalPath = current.path.endsWith('/test') ? current.path : current.path + '/test';
+    String basePath = p.joinAll(
+        [current.path, ...this.basePath.replaceAll("\"", "/").split('/')]);
 
-    finalPath = "$finalPath/cassettes/$path";
+    String cassettePath = p.joinAll(paths);
+    String filePath = p.join(basePath, cassettePath);
 
-    return new File(finalPath);
+    return File(filePath);
   }
 
-  makeMockRequestWithAdapter(File file) {
-    when(fetch(any, any, any)).thenAnswer((invocation) async {
-      List arguments = invocation.positionalArguments;
-      return makeMockRequest(file, arguments[0], arguments[1], arguments[2]);
-    });
-  }
-
-  makeNormalRequestWithAdapter(File file) {
-    when(fetch(any, any, any)).thenAnswer((invocation) async {
-      List arguments = invocation.positionalArguments;
-      if (file.existsSync())
-        return makeMockRequest(file, arguments[0], arguments[1], arguments[2]);
-
-      return makeNormalRequest(file, arguments[0], arguments[1], arguments[2]);
-    });
-  }
-
-  Future<ResponseBody> makeNormalRequest(
-    File file,
+  Future<ResponseBody> fetch(
     RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
   ) async {
-    final adapter = DefaultHttpClientAdapter();
+    if (_file == null && createIfNotExists) useCassette(p.current);
 
-    ResponseBody responseBody =
-        await adapter.fetch(options, requestStream, cancelFuture);
+    var data = await _matchRequest(options.uri);
 
-    int status = responseBody.statusCode;
+    if (data == null) {
+      data = await _makeNormalRequest(options, requestStream, cancelFuture);
+    }
 
-    DefaultTransformer transformer = DefaultTransformer();
-
-    var data = await transformer.transformResponse(options, responseBody);
-
-    _storeRequest(file, options, data, responseBody);
-
-    return ResponseBody.fromString(
-      json.encode(data),
-      status,
-      headers: dioHttpHeadersForResponseBody,
-    );
-  }
-
-  Future<ResponseBody> makeMockRequest(
-    File file,
-    RequestOptions options,
-    Stream<List<int>> requestStream,
-    Future cancelFuture,
-  ) async {
-    Map data = await _matchRequest(options.uri, file, orElse: () async {
-      await makeNormalRequest(file, options, requestStream, cancelFuture);
-      return _matchRequest(options.uri, file);
-    });
+    if(data == null){
+      throw Exception('Unable to create cassette');
+    }
 
     Map response = data['response'];
 
@@ -99,54 +76,35 @@ class VcrAdapter extends Mock implements HttpClientAdapter {
     );
   }
 
-  void _storeRequest(File file, RequestOptions requestOptions, dynamic data,
-      ResponseBody responseBody) {
-    List mock = [_buildCassette(data, responseBody, requestOptions)];
+  Future<Map?> _makeNormalRequest(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future? cancelFuture,
+  ) async {
+    ResponseBody responseBody =
+        await super.fetch(options, requestStream, cancelFuture);
 
-    if (!file.existsSync()) {
-      file.createSync(recursive: true);
-    } else {
-      List requests = _readFile(file);
-      requests.addAll(mock);
-      mock = requests;
-    }
+    var cassette = Cassette(file, responseBody, options);
 
-    file.writeAsStringSync(json.encode(mock));
+    await cassette.save();
+
+    return _matchRequest(options.uri);
   }
 
-  List _readFile(File file) {
+  List? _readFile() {
     String jsonString = file.readAsStringSync();
     return json.decode(jsonString);
   }
 
-  Map _buildCassette(
-      dynamic data, ResponseBody responseBody, RequestOptions requestOptions) {
-    return {
-      'request': {
-        'url': requestOptions.uri.toString(),
-        'payload': requestOptions.data,
-        'headers': requestOptions.headers ?? {}
-      },
-      'response': {
-        'status': responseBody.statusCode,
-        'body': data,
-        'headers': responseBody.headers ?? {}
-      },
-      'createdAt': DateTime.now().toString()
-    };
-  }
+  Future<Map?> _matchRequest(Uri uri) async {
+    if(!file.existsSync()) return null;
 
-  Future<Map> _matchRequest(Uri uri, File file, {orElse}) async {
     String host = uri.host;
     String path = uri.path;
-    List requests = _readFile(file);
-    return requests.firstWhere(
-      (request) {
-        Uri uri2 = Uri.parse(request["request"]["url"]);
-        return uri2.host == host && uri2.path == path;
-      },
-      orElse: () =>
-          orElse != null ? orElse() : throw Exception('Cassette not found'),
-    );
+    List requests = _readFile()!;
+    return requests.firstWhere((request) {
+      Uri uri2 = Uri.parse(request["request"]["url"]);
+      return uri2.host == host && uri2.path == path;
+    }, orElse: () => null);
   }
 }
