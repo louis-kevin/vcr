@@ -10,11 +10,10 @@ import 'package:vcr/vcr.dart';
 import '../lib/main.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-
 void main() {
-  VcrAdapter adapter;
-  ApiCall apiCall;
-  setUp((){
+  late VcrAdapter adapter;
+  late ApiCall apiCall;
+  setUp(() {
     adapter = VcrAdapter();
     apiCall = ApiCall();
     apiCall.client.httpClientAdapter = adapter;

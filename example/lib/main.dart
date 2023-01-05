@@ -5,7 +5,7 @@ class ApiCall {
 
   call() async {
     Response response =
-        await client.get('https://api.github.com/users/louis-kevin/repos');
+    await client.get('https://api.github.com/users/louis-kevin/repos');
 
     return response;
   }
