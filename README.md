@@ -30,8 +30,10 @@ This package is inspired by VCR gem
 
 #### Options
 
-| basePath | string | Path to store your cassettes, relative to root |
-| createIfNotExists | boolean | If this is disabled, you need to call `useCassette` before call your api|
+| option            | type    | description                                                               | default        |   |
+|-------------------|---------|---------------------------------------------------------------------------|----------------|---|
+| basePath          | string  | Path to store your cassettes, relative to root                            | test/cassettes |   |
+| createIfNotExists | boolean | If this is disabled, you need to call  `useCassette` before call your api | true           |   |
 
 ### Using useCassette
 The only main difference is that you need to call `useCassette` before calling your API
