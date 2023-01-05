@@ -19,7 +19,8 @@ class Cassette {
   _buildData() async {
     DefaultTransformer transformer = DefaultTransformer();
 
-    this.data = await transformer.transformResponse(requestOptions, responseBody);
+    this.data =
+        await transformer.transformResponse(requestOptions, responseBody);
   }
 
   void _storeRequest() {
