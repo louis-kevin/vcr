@@ -1,3 +1,6 @@
+## [0.2.1] - 5 january 2023.
+Fix Badges
+
 ## [0.2.0] - 5 january 2023.
 Added Null Safety
 Added optional call for useCassette

@@ -1,6 +1,6 @@
 name: vcr
 description: A package to mock requests in tests, storing request in json files and reusing
-version: 0.2.0
+version: 0.2.1
 homepage: https://github.com/louis-kevin/vcr
 
 environment:
