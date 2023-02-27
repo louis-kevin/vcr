@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:dio/io.dart';
 import 'package:path/path.dart' as p;
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:vcr/cassette.dart';
 
@@ -12,7 +12,7 @@ const dioHttpHeadersForResponseBody = {
   Headers.contentTypeHeader: [Headers.jsonContentType],
 };
 
-class VcrAdapter extends DefaultHttpClientAdapter {
+class VcrAdapter extends IOHttpClientAdapter {
   late String basePath;
   bool createIfNotExists;
   File? _file;

@@ -1,16 +1,16 @@
 name: vcr
 description: A package to mock requests in tests, storing request in json files and reusing
-version: 0.2.1
+version: 1.0.0
 homepage: https://github.com/louis-kevin/vcr
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.15.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
-  dio: ^4.0.6
-  path: ^1.8.1
+  dio: ^5.0.1
+  path:
 
 dev_dependencies:
   flutter_test:
