@@ -62,7 +62,7 @@ class VcrAdapter extends IOHttpClientAdapter {
       useCassette(options.uri.path);
     }
 
-    var data = await matchRequest(options.uri);
+    var data = await matchRequest(options);
 
     if (data == null) {
       data = await makeNormalRequest(options, requestStream, cancelFuture);
@@ -95,7 +95,7 @@ class VcrAdapter extends IOHttpClientAdapter {
 
     await cassette.save();
 
-    return matchRequest(options.uri);
+    return matchRequest(options);
   }
 
   List? _readFile() {
@@ -103,15 +103,18 @@ class VcrAdapter extends IOHttpClientAdapter {
     return json.decode(jsonString);
   }
 
-  Future<Map?> matchRequest(Uri uri) async {
+  Future<Map?> matchRequest(RequestOptions options) async {
     if (!file.existsSync()) return null;
 
-    String host = uri.host;
-    String path = uri.path;
+    String host = options.uri.host;
+    String path = options.uri.path;
+    String method = options.method;
     List requests = _readFile()!;
     return requests.firstWhere((request) {
       Uri uri2 = Uri.parse(request["request"]["url"]);
-      return uri2.host == host && uri2.path == path;
+      return uri2.host == host &&
+          uri2.path == path &&
+          request["request"]["method"] == method;
     }, orElse: () => null);
   }
 }

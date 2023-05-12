@@ -17,7 +17,7 @@ class Cassette {
   }
 
   _buildData() async {
-    DefaultTransformer transformer = DefaultTransformer();
+    final transformer = BackgroundTransformer();
 
     this.data =
         await transformer.transformResponse(requestOptions, responseBody);
@@ -46,6 +46,7 @@ class Cassette {
     return {
       'request': {
         'url': requestOptions.uri.toString(),
+        'method': requestOptions.method,
         'payload': requestOptions.data,
         'headers': requestOptions.headers
       },
