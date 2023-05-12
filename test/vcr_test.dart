@@ -30,7 +30,7 @@ class VcrTestAdapter extends VcrAdapter {
 
     await cassette.save();
 
-    return matchRequest(options.uri);
+    return matchRequest(options);
   }
 }
 
