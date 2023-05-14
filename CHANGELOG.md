@@ -1,3 +1,6 @@
+## [2.0.0] - 14 may 2023.
+Storing method in cassette
+
 ## [0.2.1] - 5 january 2023.
 Fix Badges
 
